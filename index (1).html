@@ -767,17 +767,6 @@
         background: #e0e0e0;
       }
 
-      .btn-retry {
-        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-        color: white;
-        flex: 1;
-      }
-
-      .btn-retry:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(255, 152, 0, 0.35);
-      }
-
       .btn-back {
         background: #f0f0f0;
         color: #333;
@@ -796,10 +785,6 @@
       .results-screen.active {
         display: block;
         text-align: center;
-      }
-
-      .results-screen .button-group {
-        flex-wrap: wrap;
       }
 
       .results-title {
@@ -1356,13 +1341,6 @@
         <div class="button-group">
           <button class="btn-primary" onclick="app.retakeExam()">
             Retake Exam
-          </button>
-          <button
-            class="btn-retry"
-            id="retryBtn"
-            onclick="app.retryIncorrectQuestions()"
-          >
-            Retry Missed Questions
           </button>
           <button class="btn-secondary" onclick="app.reviewAnswers()">
             Review Exam
@@ -4909,7 +4887,7 @@
                   "Activate business functions in a sandbox system for testing, Activate business functions in the development system, Import into the quality assurance system and perform testing, Create and release the transport request in the development system, Import into the production system",
                   "Activate business functions in a sandbox system for testing, Activate business functions in the development system, Create and release the transport request in the development system, Import into the quality assurance system and perform testing, Import into the production system",
                 ],
-                answer: 1,
+                answer: 3,
                 explanation:
                   "First you activate the business functions for test purposes with transaction SFW5 in a temporary sandbox system, then you activate the correct business functions with transaction SFW5 in the development system. You then create a transport request containing the activated business functions with transaction SFW5 in the development system and release the transport request. Next, you import the transport request with transaction STMS in the quality assurance system and perform quality assurance testing, and finally, you import the transport request with transaction STMS in the production system.",
                 tag1: "TADM12_1",
@@ -9560,7 +9538,7 @@
               },
 
               {
-                id: "q_5104",
+                id: "q_5110",
                 type: "single",
                 question:
                   "What is the purpose of the executable directory within the ASCS/SYS structure?",
@@ -10239,7 +10217,7 @@
                   "Name Server",
                   "SAP Host Agent",
                 ],
-                answer: [0, 1],
+                answer: [0, 1, 3],
                 explanation: "Unspecified",
                 tag1: "easypeasy",
                 tag2: "Unspecified",
@@ -10257,7 +10235,7 @@
                   "Instance Custom → Template Custom → Instance Default → Template Default",
                   "Template Default → Template Custom → Instance Default → Instance Custom",
                 ],
-                answer: 0,
+                answer: 4,
                 explanation: "Unspecified",
                 tag1: "easypeasy",
                 tag2: "Unspecified",
@@ -10323,7 +10301,7 @@
                   "HTTPS between the client and SAP Web Dispatcher, HTTP between SAP Web Dispatcher and the SAP system",
                   "RFC between the client and SAP Web Dispatcher, HTTP between SAP Web Dispatcher and the SAP system",
                 ],
-                answer: 0,
+                answer: 2,
                 explanation: "Unspecified",
                 tag1: "easypeasy",
                 tag2: "Unspecified",
@@ -11294,7 +11272,7 @@
                 question:
                   "You are using the strategy Standard for updating an AS ABAP-based SAP system. This will result in lower required free space in the database than when using the strategy Single System.",
                 options: ["True", "False"],
-                answer: 0,
+                answer: 1,
                 explanation: "Unspecified",
                 tag1: "easypeasy",
                 tag2: "Unspecified",
@@ -11832,7 +11810,7 @@
                   "Maintenance Planner",
                   "SAPinst",
                 ],
-                answer: 1,
+                answer: 0,
                 explanation: "Unspecified",
                 tag1: "easypeasy",
                 tag2: "Unspecified",
@@ -12861,7 +12839,6 @@
         renderResultsScreen() {
           const { correct, incorrect, skipped, percentage, total } =
             this.results;
-          const missedQuestions = this.getMissedQuestions();
 
           document.getElementById("finalScore").textContent = `${percentage}%`;
           document.getElementById("resultsSummary").innerHTML = `
@@ -12870,43 +12847,6 @@
           document.getElementById("correctCount").textContent = correct;
           document.getElementById("incorrectCount").textContent = incorrect;
           document.getElementById("skippedCount").textContent = skipped;
-
-          const retryBtn = document.getElementById("retryBtn");
-          retryBtn.disabled = missedQuestions.length === 0;
-          retryBtn.textContent = missedQuestions.length
-            ? `Retry Missed Questions (${missedQuestions.length})`
-            : "Retry Missed Questions";
-        },
-
-        // Get questions answered incorrectly or skipped
-        getMissedQuestions() {
-          return this.questions.filter((question) => {
-            if (!(question.id in this.answers)) {
-              return true;
-            }
-
-            return !this.isAnswerCorrect(question.id);
-          });
-        },
-
-        // Retry missed questions only
-        retryIncorrectQuestions() {
-          const missedQuestions = this.getMissedQuestions();
-
-          if (missedQuestions.length === 0) {
-            alert("There are no missed questions to retry.");
-            return;
-          }
-
-          this.questions = missedQuestions;
-          this.answers = {};
-          this.currentQuestionIndex = 0;
-          this.revealedAnswers = new Set();
-          this.shuffledOptions = {};
-          this.results = null;
-
-          this.switchScreen("exam");
-          this.renderExamScreen();
         },
 
         // Retake Exam
