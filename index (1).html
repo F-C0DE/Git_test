@@ -767,6 +767,17 @@
         background: #e0e0e0;
       }
 
+      .btn-retry {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        color: white;
+        flex: 1;
+      }
+
+      .btn-retry:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 152, 0, 0.35);
+      }
+
       .btn-back {
         background: #f0f0f0;
         color: #333;
@@ -785,6 +796,10 @@
       .results-screen.active {
         display: block;
         text-align: center;
+      }
+
+      .results-screen .button-group {
+        flex-wrap: wrap;
       }
 
       .results-title {
@@ -1341,6 +1356,13 @@
         <div class="button-group">
           <button class="btn-primary" onclick="app.retakeExam()">
             Retake Exam
+          </button>
+          <button
+            class="btn-retry"
+            id="retryBtn"
+            onclick="app.retryIncorrectQuestions()"
+          >
+            Retry Missed Questions
           </button>
           <button class="btn-secondary" onclick="app.reviewAnswers()">
             Review Exam
@@ -12839,6 +12861,7 @@
         renderResultsScreen() {
           const { correct, incorrect, skipped, percentage, total } =
             this.results;
+          const missedQuestions = this.getMissedQuestions();
 
           document.getElementById("finalScore").textContent = `${percentage}%`;
           document.getElementById("resultsSummary").innerHTML = `
@@ -12847,6 +12870,43 @@
           document.getElementById("correctCount").textContent = correct;
           document.getElementById("incorrectCount").textContent = incorrect;
           document.getElementById("skippedCount").textContent = skipped;
+
+          const retryBtn = document.getElementById("retryBtn");
+          retryBtn.disabled = missedQuestions.length === 0;
+          retryBtn.textContent = missedQuestions.length
+            ? `Retry Missed Questions (${missedQuestions.length})`
+            : "Retry Missed Questions";
+        },
+
+        // Get questions answered incorrectly or skipped
+        getMissedQuestions() {
+          return this.questions.filter((question) => {
+            if (!(question.id in this.answers)) {
+              return true;
+            }
+
+            return !this.isAnswerCorrect(question.id);
+          });
+        },
+
+        // Retry missed questions only
+        retryIncorrectQuestions() {
+          const missedQuestions = this.getMissedQuestions();
+
+          if (missedQuestions.length === 0) {
+            alert("There are no missed questions to retry.");
+            return;
+          }
+
+          this.questions = missedQuestions;
+          this.answers = {};
+          this.currentQuestionIndex = 0;
+          this.revealedAnswers = new Set();
+          this.shuffledOptions = {};
+          this.results = null;
+
+          this.switchScreen("exam");
+          this.renderExamScreen();
         },
 
         // Retake Exam
